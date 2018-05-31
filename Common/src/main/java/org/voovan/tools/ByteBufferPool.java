@@ -22,6 +22,11 @@ public class ByteBufferPool {
     private final static ConcurrentSkipListMap<Integer, ObjectCachedPool> STANDER_MEM_BLOCK_BY_SIZE = new ConcurrentSkipListMap<Integer, ObjectCachedPool>();
     private final static ConcurrentHashMap<Long, MemBlockInfo> MEM_BLOCK_INFOS = new ConcurrentHashMap<Long, MemBlockInfo>();
 
+    public final static UniqueId uniqueId = new UniqueId(444);
+    static {
+        init();
+    }
+
     /**
      * 内存块信息管理策略
      */
@@ -76,11 +81,6 @@ public class ByteBufferPool {
             }
         }
 
-    }
-
-    public final static UniqueId uniqueId = new UniqueId(444);
-    static {
-       init();
     }
 
     /**
@@ -160,14 +160,14 @@ public class ByteBufferPool {
      * @param reqireSize 借出的内存块的缓存 id
      * @return 内存块的缓存 id
      */
-    public static Object borrow(int reqireSize){
+    public static long borrow(int reqireSize){
         int standerBlockSize = getStanderBlockSize(reqireSize);
         if(standerBlockSize>0) {
             ObjectCachedPool objectCachedPool = STANDER_MEM_BLOCK_BY_SIZE.get(standerBlockSize);
             synchronized (objectCachedPool) {
                 Object borrowObjectId = objectCachedPool.borrow();
                 if (borrowObjectId != null) {
-                    return borrowObjectId;
+                    return (long) borrowObjectId;
                 } else {
                     //分配内存地址
                     ByteBuffer newByteBuffer = TByteBuffer.allocateManualReleaseBuffer(standerBlockSize * 1024);
@@ -175,7 +175,7 @@ public class ByteBufferPool {
                     long objectId = (Long)objectCachedPool.add(uniqueId.nextInt(), newByteBuffer);
                     //增加块信息进行保存
                     MEM_BLOCK_INFOS.put(objectId, new MemBlockInfo(objectId, standerBlockSize, objectCachedPool));
-                    return objectCachedPool.borrow();
+                    return (long) objectCachedPool.borrow();
                 }
             }
         } else {
@@ -183,7 +183,7 @@ public class ByteBufferPool {
             synchronized (objectCachedPool) {
                 Object borrowObjectId = objectCachedPool.borrow();
                 if (borrowObjectId != null) {
-                    return borrowObjectId;
+                    return (long) borrowObjectId;
                 } else {
                     //分配内存地址
                     ByteBuffer newByteBuffer = TByteBuffer.allocateManualReleaseBuffer(reqireSize);
@@ -191,7 +191,7 @@ public class ByteBufferPool {
                     long objectId = (Long)objectCachedPool.add(uniqueId.nextInt(), newByteBuffer);
                     //增加块信息进行保存
                     MEM_BLOCK_INFOS.put(objectId, new MemBlockInfo(objectId, -1, objectCachedPool));
-                    return objectCachedPool.borrow();
+                    return (long) objectCachedPool.borrow();
                 }
             }
         }
