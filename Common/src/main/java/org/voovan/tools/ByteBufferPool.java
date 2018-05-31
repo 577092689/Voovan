@@ -19,9 +19,8 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * Licence: Apache v2 License
  */
 public class ByteBufferPool {
-    public final static ConcurrentSkipListMap<Integer, ObjectCachedPool> STANDER_MEM_BLOCK_BY_SIZE = new ConcurrentSkipListMap<Integer, ObjectCachedPool>();
-    public final static ConcurrentHashMap<Long, MemBlockInfo> MEM_BLOCK_INFOS = new ConcurrentHashMap<Long, MemBlockInfo>();
-
+    private final static ConcurrentSkipListMap<Integer, ObjectCachedPool> STANDER_MEM_BLOCK_BY_SIZE = new ConcurrentSkipListMap<Integer, ObjectCachedPool>();
+    private final static ConcurrentHashMap<Long, MemBlockInfo> MEM_BLOCK_INFOS = new ConcurrentHashMap<Long, MemBlockInfo>();
 
     /**
      * 内存块信息管理策略
