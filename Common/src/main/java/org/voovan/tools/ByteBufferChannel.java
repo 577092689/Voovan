@@ -32,6 +32,7 @@ public class ByteBufferChannel {
 	private int size;
 	private ReentrantLock lock;
 	private AtomicBoolean borrowed = new AtomicBoolean(false);
+	private Object byteBufferId;
 
 	/**
 	 * 构造函数
@@ -56,7 +57,7 @@ public class ByteBufferChannel {
 	 * 构造函数
 	 */
 	public ByteBufferChannel() {
-		init(1024);
+		init((int) (1024*Math.random()*128));
 	}
 
 	/**
@@ -78,8 +79,8 @@ public class ByteBufferChannel {
 	 */
 	private ByteBuffer newByteBuffer(int capacity){
 		try {
-
-			ByteBuffer instance = TByteBuffer.allocateManualReleaseBuffer(capacity);
+			byteBufferId = ByteBufferPool.borrow(capacity);
+			ByteBuffer instance = ByteBufferPool.getByteBuffer(byteBufferId);
 			address.set(TByteBuffer.getAddress(instance));
 
 			return instance;
@@ -95,7 +96,7 @@ public class ByteBufferChannel {
 	 * @return true 已释放, false: 未释放
 	 */
 	public boolean isReleased(){
-		if(address.get() == 0 || byteBuffer == null){
+		if(address.get() == 0){
 			return true;
 		}else{
 			return false;
@@ -148,7 +149,7 @@ public class ByteBufferChannel {
 			lock.lock();
 			try {
 				if (address.get() != 0) {
-					TByteBuffer.release(byteBuffer);
+					ByteBufferPool.restitution(byteBufferId);
 					address.set(0);
 					byteBuffer = null;
 					size = -1;

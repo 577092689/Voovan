@@ -21,7 +21,7 @@ public class ObjectPoolCachedUnit extends TestCase {
 
 
     public void testAddAndLiveTime(){
-        String pooledId = null;
+        Object pooledId = null;
 
         ObjectCachedPool objectPool = new ObjectCachedPool(2);
         for(int i=0;i<30;i++) {
@@ -43,7 +43,7 @@ public class ObjectPoolCachedUnit extends TestCase {
     }
 
     public void testBorrow() {
-        String pooledId = null;
+        Object pooledId = null;
         ObjectCachedPool objectPool = new ObjectCachedPool();
 
         for(int i=0;i<100;i++) {
@@ -57,10 +57,10 @@ public class ObjectPoolCachedUnit extends TestCase {
 
         TEnv.sleep(3000);
 
-        ArrayList<String> arrayList = new ArrayList<String>();
+        ArrayList<Object> arrayList = new ArrayList<Object>();
         for(int i=0;i<50;i++){
             Global.getThreadPool().execute(()->{
-                String objectId = objectPool.borrow();
+                Object objectId = objectPool.borrow();
                 arrayList.add(objectId);
                 Logger.simple("borrow1->" + objectId);
             });
@@ -80,7 +80,7 @@ public class ObjectPoolCachedUnit extends TestCase {
 
         for(int i=0;i<50;i++){
             Global.getThreadPool().execute(()->{
-                String objectId = objectPool.borrow();
+                Object objectId = objectPool.borrow();
                 arrayList.add(objectId);
                 Logger.simple("borrow2->" +objectId);
             });
